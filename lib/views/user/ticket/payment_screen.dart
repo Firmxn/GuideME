@@ -13,6 +13,7 @@ import 'package:guideme/widgets/custom_appbar.dart';
 import 'package:guideme/widgets/custom_button.dart';
 import 'package:guideme/widgets/custom_card.dart';
 import 'package:guideme/widgets/custom_navbar.dart';
+import 'package:guideme/widgets/custom_snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -34,8 +35,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final PurchaseController _purchaseController = PurchaseController();
 
   late AuthProvider authProvider;
-  late String name;
+  late String ticketId;
   late String uid;
+  late String name;
   late String organizer;
   late String location;
   late String imageUrl;
@@ -70,7 +72,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-
+    ticketId = widget.data.ticketId;
     name = widget.data.name;
     organizer = widget.data.organizer;
     location = widget.data.location;
@@ -179,55 +181,63 @@ class _PaymentScreenState extends State<PaymentScreen> {
         Timestamp openingTimeTimestamp = Timestamp.fromDate(openingTime);
         Timestamp closingTimestamp = Timestamp.fromDate(closingDateTime);
         Timestamp closingTimeTimestamp = Timestamp.fromDate(closingTime);
-        // if (ticketData != null) {
-        HistoryModel dataPurchase = HistoryModel(
-          uid: uid,
-          customerName: nameController.text,
-          customerEmail: emailController.text,
-          ticketName: name,
-          location: location,
-          imageUrl: imageUrl,
-          organizer: organizer,
-          category: category,
-          subcategory: subcategory,
-          rating: rating,
-          price: price,
-          totalPrice: totalPrice,
-          quantity: quantity,
-          openingDate: openingTimestamp,
-          closingDate: closingTimestamp,
-          openingTime: openingTimeTimestamp,
-          closingTime: closingTimeTimestamp,
-          purchaseAt: Timestamp.now(),
-          updatedAt: Timestamp.now(),
-        );
-        try {
-          // Memanggil fungsi addHistory untuk menyimpan event dan galeri ke Firestore
-          await _purchaseController.addHistory(dataPurchase);
-
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Ticket created successfully'),
-          ));
-          // Mengarahkan ke halaman HistoryScreen dan mengganti halaman saat ini
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HistoryScreen()), // Arahkan ke halaman HistoryScreen
+        if (stock != 0) {
+          HistoryModel dataPurchase = HistoryModel(
+            ticketId: ticketId,
+            uid: uid,
+            customerName: nameController.text,
+            customerEmail: emailController.text,
+            ticketName: name,
+            location: location,
+            imageUrl: imageUrl,
+            organizer: organizer,
+            category: category,
+            subcategory: subcategory,
+            rating: rating,
+            price: price,
+            totalPrice: totalPrice,
+            quantity: quantity,
+            openingDate: openingTimestamp,
+            closingDate: closingTimestamp,
+            openingTime: openingTimeTimestamp,
+            closingTime: closingTimeTimestamp,
+            purchaseAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
           );
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Failed to create ticket: $e'),
-          ));
+          try {
+            // Memanggil fungsi addHistory untuk menyimpan event dan galeri ke Firestore
+            await _purchaseController.addHistory(dataPurchase);
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('History created successfully.'),
+            ));
+            // SuccessFloatingSnackBar.show(context: context, message: 'Ticket created successfully.');
+            // Mengarahkan ke halaman HistoryScreen dan mengganti halaman saat ini
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HistoryScreen()), // Arahkan ke halaman HistoryScreen
+            );
+          } catch (e) {
+            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            //   content: Text(),
+            // ));
+            DangerFloatingSnackBar.show(context: context, message: 'Failed to create ticket: $e');
+          }
+        } else {
+          DangerFloatingSnackBar.show(context: context, message: 'Ticket out of stock.');
+          return;
         }
-        // }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Please complete all fields'),
-        ));
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text('Please complete all fields'),
+        // ));
+        DangerFloatingSnackBar.show(context: context, message: 'Please complete all fields');
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please complete all fields correctly'),
-      ));
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   content: Text('Please complete all fields correctly'),
+      // ));
+      DangerFloatingSnackBar.show(context: context, message: 'Please complete all fields correctly');
     }
   }
 
@@ -242,7 +252,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BackAppBar(title: ''),
+      appBar: BackAppBar(),
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
@@ -259,8 +269,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            // mainAxisAlignment: MainAxisAlignment.start,
+                            // crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Column(
                                 children: [
@@ -268,15 +278,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     borderRadius: BorderRadius.circular(5.0),
                                     child: Image.network(
                                       imageUrl, // URL gambar
-                                      width: 120, // Lebar mengikuti lebar layar
-                                      height: 120, // Tinggi gambar
+                                      width: 110, // Lebar mengikuti lebar layar
+                                      height: 110, // Tinggi gambar
                                       fit: BoxFit.cover, // Menyesuaikan gambar agar sesuai kotak
                                     ),
                                   ),
                                 ],
                               ),
                               SizedBox(
-                                width: 16,
+                                width: 12,
                               ),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -299,7 +309,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       ),
                                       Text(
                                         capitalizeEachWord(organizer),
-                                        style: AppTextStyles.smallStyle.copyWith(fontWeight: FontWeight.bold),
+                                        style: AppTextStyles.smallBold,
                                       ),
                                     ],
                                   ),
@@ -340,6 +350,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                               ),
                                             ],
                                           ),
+                                          SizedBox(
+                                            height: 2,
+                                          ),
                                           Row(
                                             children: [
                                               Icon(
@@ -369,6 +382,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                               ),
                                             ],
                                           ),
+                                          SizedBox(
+                                            height: 2,
+                                          ),
                                           Row(
                                             children: [
                                               Text(
@@ -393,6 +409,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                               ),
                                             ],
                                           ),
+                                          SizedBox(
+                                            height: 2,
+                                          ),
                                           Row(
                                             children: [
                                               Text(
@@ -410,7 +429,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     children: [
                                       Text(
                                         formatRupiah(price),
-                                        style: AppTextStyles.mediumStyle.copyWith(fontWeight: FontWeight.bold),
+                                        style: AppTextStyles.mediumBold,
                                       )
                                     ],
                                   )
@@ -434,7 +453,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16), // Spasi antar elemen
+                              SizedBox(height: 16), // Spasi antar elemen
                               Row(
                                 children: [
                                   Expanded(
@@ -444,8 +463,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       controller: nameController,
                                       decoration: InputDecoration(
                                         labelText: 'Name',
-                                        labelStyle: AppTextStyles.mediumStyle,
-                                        isDense: true, // Ukuran kotak lebih kecil
+                                        labelStyle: AppTextStyles.mediumBlack,
+                                        isDense: true, // Ukuran kotak lebih kecil      isDense: isDense ?? true, // Ukuran kotak lebih kecil
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0), // Mengatur padding konten agar lebih kecil
                                         border: OutlineInputBorder(),
                                         focusedBorder: OutlineInputBorder(
                                           borderSide: BorderSide(
@@ -478,8 +498,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       controller: emailController,
                                       decoration: InputDecoration(
                                         labelText: 'Email',
-                                        labelStyle: AppTextStyles.mediumStyle,
-                                        isDense: true, // Ukuran kotak lebih kecil
+                                        labelStyle: AppTextStyles.mediumBlack,
+                                        isDense: true, // Ukuran kotak lebih kecil     isDense: isDense ?? true, // Ukuran kotak lebih kecil
+                                        contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0), // Mengatur padding konten agar lebih kecil
                                         border: OutlineInputBorder(),
                                         focusedBorder: OutlineInputBorder(
                                           borderSide: BorderSide(
@@ -513,7 +534,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 children: [
                                   Text(
                                     'Quantity:',
-                                    style: AppTextStyles.mediumStyle,
+                                    style: AppTextStyles.mediumBlack,
                                   ),
                                   // const SizedBox(width: 16),
                                   // Quantity controls
@@ -528,6 +549,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       children: [
                                         Row(
                                           // mainAxisAlignment: MainAxisAlignment.end,
+                                          // crossAxisAlignment: CrossAxisAlignment.center,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             // Tombol kurangi
@@ -535,18 +557,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                               icon: Icon(Icons.remove),
                                               onPressed: quantity > 0 ? decreaseQuantity : null, // Tombol hanya aktif jika quantity > 0
                                             ),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                              child: SizedBox(
-                                                width: 40,
-                                                height: 30,
+                                            SizedBox(
+                                              width: 40,
+                                              height: 30,
+                                              child: Center(
+                                                // alignment: Alignment.center,
                                                 child: TextField(
                                                   cursorColor: AppColors.primaryColor,
                                                   controller: quantityController,
                                                   keyboardType: TextInputType.number,
                                                   textAlign: TextAlign.center,
                                                   onChanged: updateQuantity,
-                                                  style: AppTextStyles.mediumStyle,
+                                                  style: AppTextStyles.mediumBlack,
                                                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                                   decoration: InputDecoration(
                                                     // isDense: true,
@@ -557,7 +579,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                         width: 2.0, // Menambahkan ketebalan border
                                                       ),
                                                     ),
-                                                    contentPadding: EdgeInsets.symmetric(vertical: 0),
+                                                    isDense: true, // Ukuran kotak lebih kecil
+                                                    contentPadding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Mengatur padding konten agar lebih kecil
                                                   ),
                                                 ),
                                               ),
@@ -599,7 +622,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16), // Spasi antar elemen
+                              SizedBox(height: 8), // Spasi antar elemen
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -670,11 +693,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               ExpansionTile(
                                 leading: Icon(
                                   AppIcons.wallet, // Ganti dengan ikon yang sesuai
-                                  size: 20.0, // Ukuran ikon, sesuaikan sesuai kebutuhan
+                                  size: 18.0, // Ukuran ikon, sesuaikan sesuai kebutuhan
                                 ),
                                 title: Text(
                                   'E-Wallet',
-                                  style: AppTextStyles.mediumBold,
+                                  style: AppTextStyles.mediumBlack,
                                 ),
                                 iconColor: AppColors.primaryColor,
                                 collapsedIconColor: AppColors.secondaryColor,
@@ -689,7 +712,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       ListTile(
                                         title: Text(
                                           'GoPay',
-                                          style: AppTextStyles.mediumStyle,
+                                          style: AppTextStyles.mediumBlack,
                                         ),
                                         onTap: () {
                                           // Logika atau tindakan untuk GoPay
@@ -699,7 +722,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       ListTile(
                                         title: Text(
                                           'DANA',
-                                          style: AppTextStyles.mediumStyle,
+                                          style: AppTextStyles.mediumBlack,
                                         ),
                                         onTap: () {
                                           // Logika atau tindakan untuk DANA
@@ -709,7 +732,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       ListTile(
                                         title: Text(
                                           'ShopeePay',
-                                          style: AppTextStyles.mediumStyle,
+                                          style: AppTextStyles.mediumBlack,
                                         ),
                                         onTap: () {
                                           // Logika atau tindakan untuk ShopeePay
@@ -729,16 +752,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       children: [
                                         Icon(
                                           AppIcons.creditCard,
-                                          size: 20.0,
+                                          size: 18.0,
                                           color: _selectedCreditCard == 'credit_card'
                                               ? AppColors.primaryColor // Warna jika radio dipilih
                                               : AppColors.secondaryColor, // Warna jika radio tidak dipilih
                                         ),
                                         SizedBox(
-                                          width: 16,
+                                          width: 24,
                                         ),
                                         Text('Credit Card',
-                                            style: AppTextStyles.mediumBold
+                                            style: AppTextStyles.mediumBlack
                                                 .copyWith(color: _selectedCreditCard == 'credit_card' ? AppColors.primaryColor : AppColors.secondaryColor)),
                                       ],
                                     ), // Teks di kiri
@@ -772,6 +795,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     style: AppTextStyles.bodyBold,
                                   )
                                 ],
+                              ),
+                              SizedBox(
+                                height: 8,
                               ),
                               Column(
                                 children: [
@@ -911,37 +937,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           label: 'Purchase',
                           onPressed: () {
                             // Validasi Form
-                            if (_formKey.currentState?.validate() == true) {
-                              if (_selectedCreditCard == null) {
-                                // Validasi tambahan untuk Radio Button
-                                // print(uid);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Please select a payment method')),
-                                );
+                            if (stock != 0) {
+                              if (_formKey.currentState?.validate() == true) {
+                                if (_selectedCreditCard == null) {
+                                  DangerTopFloatingSnackBar.show(context: context, message: 'Please select a payment method.');
+                                } else {
+                                  // Jika semua input valid, tampilkan dialog
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        backgroundColor: AppColors.backgroundColor,
+                                        contentPadding: EdgeInsets.all(8), // Hapus padding default
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8.0), // Mengatur border radius
+                                        ),
+                                        content: Container(
+                                          width: MediaQuery.of(context).size.width * 0.9, // 80% dari lebar layar
+                                          child: PaymentFormModal(totalPrice: totalPrice, savePurchase: saveHistory),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
                               } else {
-                                // Jika semua input valid, tampilkan dialog
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      backgroundColor: AppColors.backgroundColor,
-                                      contentPadding: EdgeInsets.all(8), // Hapus padding default
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8.0), // Mengatur border radius
-                                      ),
-                                      content: Container(
-                                        width: MediaQuery.of(context).size.width * 0.9, // 80% dari lebar layar
-                                        child: PaymentFormModal(totalPrice: totalPrice, savePurchase: saveHistory),
-                                      ),
-                                    );
-                                  },
-                                );
+                                DangerTopFloatingSnackBar.show(context: context, message: 'Please fill in all required fields');
                               }
                             } else {
-                              // Jika form tidak valid
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Please fill in all required fields')),
-                              );
+                              DangerFloatingSnackBar.show(context: context, message: 'Ticket out of stock.');
+                              return;
                             }
                           },
                         ),
@@ -999,9 +1023,9 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
   );
 
   // URL backend
-  // final String url = 'http://192.168.1.3:3000/process-payment'; // IP wifi // Ganti dengan IP dan port backend Anda
+  final String url = 'http://192.168.1.3:3000/process-payment'; // IP wifi // Ganti dengan IP dan port backend Anda
   // final String url = 'http://192.168.98.214:3000/process-payment'; // IP hospot fixcelt
-  final String url = 'http://192.168.74.17:3000/process-payment'; // IP hospot fixcelt
+  // final String url = 'http://192.168.74.17:3000/process-payment'; // IP hospot fixcelt
 
   late double totalPrice;
   // Tambahkan state untuk memantau status loading
@@ -1084,7 +1108,7 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
               // Judul
               Text(
                 'Enter Credit Card',
-                style: AppTextStyles.titleStyle,
+                style: AppTextStyles.subtitleStyle,
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 20),
@@ -1099,7 +1123,7 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
                     decoration: InputDecoration(
                       labelText: 'Card Number',
                       prefixIcon: Icon(AppIcons.creditCard),
-                      labelStyle: AppTextStyles.mediumStyle,
+                      labelStyle: AppTextStyles.mediumBlack,
                       isDense: true, // Ukuran kotak lebih kecil
                       border: OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
@@ -1142,8 +1166,8 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
                       decoration: InputDecoration(
                         labelText: 'MM',
                         hintText: 'Month',
-                        hintStyle: AppTextStyles.bodyStyle.copyWith(fontWeight: FontWeight.normal, color: AppColors.secondaryColor),
-                        labelStyle: AppTextStyles.mediumStyle,
+                        hintStyle: AppTextStyles.bodyBlack.copyWith(fontWeight: FontWeight.normal, color: AppColors.secondaryColor),
+                        labelStyle: AppTextStyles.mediumBlack,
                         isDense: true, // Ukuran kotak lebih kecil
                         border: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(
@@ -1164,8 +1188,8 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
                       decoration: InputDecoration(
                         labelText: 'YYYY',
                         hintText: 'Year',
-                        hintStyle: AppTextStyles.bodyStyle.copyWith(fontWeight: FontWeight.normal, color: AppColors.secondaryColor),
-                        labelStyle: AppTextStyles.mediumStyle,
+                        hintStyle: AppTextStyles.bodyBlack.copyWith(fontWeight: FontWeight.normal, color: AppColors.secondaryColor),
+                        labelStyle: AppTextStyles.mediumBlack,
                         isDense: true, // Ukuran kotak lebih kecil
                         border: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(
@@ -1186,8 +1210,8 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
                       decoration: InputDecoration(
                         labelText: 'CVV',
                         hintText: '123',
-                        hintStyle: AppTextStyles.bodyStyle.copyWith(fontWeight: FontWeight.normal, color: AppColors.secondaryColor),
-                        labelStyle: AppTextStyles.mediumStyle,
+                        hintStyle: AppTextStyles.bodyBlack.copyWith(fontWeight: FontWeight.normal, color: AppColors.secondaryColor),
+                        labelStyle: AppTextStyles.mediumBlack,
                         isDense: true, // Ukuran kotak lebih kecil
                         border: OutlineInputBorder(),
                         focusedBorder: OutlineInputBorder(
@@ -1209,7 +1233,7 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
                 controller: _grossAmountController,
                 decoration: InputDecoration(
                   labelText: 'Gross Amount',
-                  labelStyle: AppTextStyles.mediumStyle,
+                  labelStyle: AppTextStyles.mediumBlack,
                   isDense: true, // Ukuran kotak lebih kecil
                   border: OutlineInputBorder(),
                   focusedBorder: OutlineInputBorder(
