@@ -127,14 +127,17 @@ class FirebaseAuthService {
         // );
 
         // Menampilkan FloatingSnackbar
-        FloatingSnackBar.show(
-          context: context,
-          message: 'Welcome to Home Screen!',
-        );
+        // FloatingSnackBar.show(
+        //   context: context,
+        //   message: 'Welcome to Home Screen!',
+        // );
 
         // Memberikan delay agar snackbar tampil terlebih dahulu
-        await Future.delayed(Duration(seconds: 2));
-
+        // await Future.delayed(Duration(seconds: 2));
+        PrimarySnackBar.show(
+          context,
+          'Success logged in as user',
+        );
         // Navigasi ke HomeScreen untuk pengguna biasa
         Navigator.pushReplacement(
           context,
@@ -196,18 +199,18 @@ class FirebaseAuthService {
           context: context,
           message: 'No user found for that email.',
         );
-      } else if (e.code == 'wrong-password') {
-        // FloatingSnackBar.show(
-        //   context: context,
-        //   message: "Wrong password provided for that user.",
-        //   backgroundColor: Colors.red,
-        //   textStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        //   duration: Duration(seconds: 2),
-        // );
-        DangerFloatingSnackBar.show(
-          context: context,
-          message: 'Wrong password provided for that user.',
-        );
+        // } else if (e.code == 'wrong-password') {
+        //   // FloatingSnackBar.show(
+        //   //   context: context,
+        //   //   message: "Wrong password provided for that user.",
+        //   //   backgroundColor: Colors.red,
+        //   //   textStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        //   //   duration: Duration(seconds: 2),
+        //   // );
+        //   DangerFloatingSnackBar.show(
+        //     context: context,
+        //     message: 'Wrong password provided for that user.',
+        //   );
       } else {
         // FloatingSnackBar.show(
         //   context: context,

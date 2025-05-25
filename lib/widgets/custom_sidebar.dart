@@ -9,7 +9,7 @@ import 'package:guideme/views/admin/event_management/event_screen.dart';
 import 'package:guideme/views/admin/gallery_management/create_gallery_screen.dart';
 import 'package:guideme/views/admin/gallery_management/gallery_screen.dart';
 import 'package:guideme/views/admin/ticket_management/ticket_screen.dart';
-import 'package:guideme/views/admin/user_management/user_screen.dart';
+import 'package:guideme/views/admin/user_managements/user_screen.dart';
 import 'package:guideme/views/auth/login_screen.dart';
 import 'package:guideme/views/user/gallery_screen.dart';
 import 'package:guideme/views/user/home_screen.dart';
@@ -317,7 +317,7 @@ class CustomAdminSidebar extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => UserManagementScreen()),
+                    MaterialPageRoute(builder: (context) => UserScreen()),
                   );
                 },
               ),

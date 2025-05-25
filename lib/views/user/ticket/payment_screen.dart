@@ -94,6 +94,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     formattedClosingDate = formatDate(closingDateTime);
     formattedClosingTime = formatTime(closingDateTime);
 
+    // Menyimpan tanggal dan waktu secara terpisah dalam format Timestamp
+    Timestamp openingDateTimestamp = Timestamp.fromDate(DateTime(openingDateTime.year, openingDateTime.month, openingDateTime.day));
+    Timestamp openingTimeTimestamp =
+        Timestamp.fromDate(DateTime(openingDateTime.year, openingDateTime.month, openingDateTime.day, openingDateTime.hour, openingDateTime.minute));
+
+    Timestamp closingDateTimestamp = Timestamp.fromDate(DateTime(closingDateTime.year, closingDateTime.month, closingDateTime.day));
+    Timestamp closingTimeTimestamp =
+        Timestamp.fromDate(DateTime(closingDateTime.year, closingDateTime.month, closingDateTime.day, closingDateTime.hour, closingDateTime.minute));
+
     quantityController.text = quantity.toString(); // Set nilai awal untuk TextField
     calculateTotalPrice(); // Hitung total price saat pertama kali diinisialisasi
 
@@ -181,6 +190,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         Timestamp openingTimeTimestamp = Timestamp.fromDate(openingTime);
         Timestamp closingTimestamp = Timestamp.fromDate(closingDateTime);
         Timestamp closingTimeTimestamp = Timestamp.fromDate(closingTime);
+
+        print(openingTimeTimestamp);
+        print(openingTimestamp);
+        print(closingTimestamp);
+        print(closingTimeTimestamp);
         if (stock != 0) {
           HistoryModel dataPurchase = HistoryModel(
             ticketId: ticketId,
@@ -1023,9 +1037,10 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
   );
 
   // URL backend
-  final String url = 'http://192.168.1.3:3000/process-payment'; // IP wifi // Ganti dengan IP dan port backend Anda
+  // final String url = 'http://192.168.1.7:3000/process-payment'; // IP wifi // Ganti dengan IP dan port backend Anda
+  // final String url = 'http://192.168.117.214:3000/process-payment'; // IP hospot wirtz
   // final String url = 'http://192.168.98.214:3000/process-payment'; // IP hospot fixcelt
-  // final String url = 'http://192.168.74.17:3000/process-payment'; // IP hospot fixcelt
+  final String url = 'http://10.170.4.142:3000/process-payment'; // IP hospot fixcelt
 
   late double totalPrice;
   // Tambahkan state untuk memantau status loading
@@ -1041,6 +1056,8 @@ class _PaymentFormModalState extends State<PaymentFormModal> {
 
   // Fungsi untuk mengirimkan data ke backend
   Future<void> processPayment() async {
+    FocusScope.of(context).unfocus();
+    // Navigator.of(context).pop();
     final cardNumber = _cardNumberController.text;
     final expMonth = _expMonthController.text;
     final expYear = _expYearController.text;

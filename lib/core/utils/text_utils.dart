@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 String capitalizeEachWord(String text) {
@@ -37,4 +38,8 @@ String formatDate(DateTime dateTime) {
 
 String formatTime(DateTime dateTime) {
   return DateFormat('hh:mm a').format(dateTime);
+}
+
+Timestamp convertToTimestamp(DateTime dateTime) {
+  return Timestamp.fromDate(dateTime);
 }
