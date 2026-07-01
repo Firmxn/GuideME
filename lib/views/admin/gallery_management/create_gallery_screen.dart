@@ -1,4 +1,5 @@
 // import 'dart:io';
+import 'dart:typed_data';
 // import 'package:flutter/material.dart';
 // import 'package:guideme/controllers/category_controller.dart';
 // import 'package:guideme/controllers/gallery_controller.dart';
@@ -162,6 +163,7 @@
 // }
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:guideme/controllers/category_controller.dart';
 import 'package:guideme/controllers/gallery_controller.dart';
@@ -198,6 +200,7 @@ class _CreateGalleryManagementScreenState extends State<CreateGalleryManagementS
   String? selectedRecommendationId;
 
   File? _imageFile;
+  Uint8List? _imageBytes;
 
   // Fungsi untuk memilih gambar
   Future<void> _pickImage() async {
@@ -205,15 +208,17 @@ class _CreateGalleryManagementScreenState extends State<CreateGalleryManagementS
     final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
       setState(() {
-        _imageFile = File(pickedFile.path); // Menyimpan file gambar yang dipilih
+        try { _imageFile = File(pickedFile.path); } catch(e) {}
+        _imageBytes = bytes; // Menyimpan file gambar yang dipilih
       });
     }
   }
 
   // Fungsi untuk mengunggah gambar ke Supabase
   Future uploadImage() async {
-    if (_imageFile == null) return;
+    if (_imageBytes == null) return;
 
     // Ambil teks dari field 'name' dan buat format nama file
     final name = selectedName;
@@ -231,7 +236,7 @@ class _CreateGalleryManagementScreenState extends State<CreateGalleryManagementS
 
     try {
       // Mengunggah gambar ke Supabase
-      final uploadPath = await Supabase.instance.client.storage.from('images').upload(path, _imageFile!);
+      final uploadPath = await Supabase.instance.client.storage.from('images').uploadBinary(path, _imageBytes!);
 
       if (uploadPath.isNotEmpty) {
         // Mendapatkan URL publik untuk gambar yang diunggah
@@ -469,7 +474,8 @@ class _CreateGalleryManagementScreenState extends State<CreateGalleryManagementS
 
               // Preview gambar dengan tombol untuk memilih gambar
               NewUploadImageWithPreview(
-                imageFile: _imageFile, // Menampilkan preview gambar
+                imageFile: _imageFile,
+                  imageBytes: _imageBytes, // Menampilkan preview gambar
                 onPressed: _pickImage, // Pilih gambar
               ),
              SizedBox(height: 60),

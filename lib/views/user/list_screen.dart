@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:guideme/core/constants/constants.dart';
@@ -202,7 +203,7 @@ class ListScreenContent extends StatelessWidget {
                           borderRadius: BorderRadius.vertical(
                             top: Radius.circular(5),
                           ),
-                          child: newDataModel.imageUrl.startsWith('/')
+                          child: (!kIsWeb && newDataModel.imageUrl.startsWith('/'))
                               ? Image.file(
                                   File(newDataModel.imageUrl),
                                   fit: BoxFit.cover,

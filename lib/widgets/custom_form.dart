@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'dart:io';
@@ -571,13 +573,15 @@ class UploadImageWithPreview extends StatelessWidget {
 }
 
 class NewUploadImageWithPreview extends StatelessWidget {
-  final File? imageFile; // Untuk menyimpan file gambar yang dipilih
+  final File? imageFile;
+  final Uint8List? imageBytes; // Untuk menyimpan file gambar yang dipilih
   final String? imageUrl; // URL gambar yang akan ditampilkan jika tidak ada file
   final VoidCallback onPressed; // Fungsi untuk memilih gambar
 
   const NewUploadImageWithPreview({
     super.key,
     required this.imageFile,
+    this.imageBytes,
     required this.onPressed,
     this.imageUrl,
   });
@@ -597,7 +601,7 @@ class NewUploadImageWithPreview extends StatelessWidget {
         ),
         SizedBox(height: 8), // Spacer di bawah tombol
         // Image Preview (Jika Gambar Tersedia)
-        imageFile != null || imageUrl != null
+        imageBytes != null || imageFile != null || imageUrl != null
             ? GestureDetector(
                 onTap: onPressed, // Pilih gambar lagi saat gambar ditekan
                 child: MainCard(
@@ -615,11 +619,16 @@ class NewUploadImageWithPreview extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: imageFile != null
-                          ? Image.file(
-                              imageFile!, // Memuat gambar dari file
-                              fit: BoxFit.fitWidth, // Memastikan gambar menyesuaikan lebar tanpa cropping
-                            )
+                      child: imageBytes != null ? Image.memory(imageBytes!, fit: BoxFit.fitWidth) : imageFile != null
+                          ? (kIsWeb
+                              ? Image.network(
+                                  imageFile!.path,
+                                  fit: BoxFit.fitWidth,
+                                )
+                              : Image.file(
+                                  imageFile!, // Memuat gambar dari file
+                                  fit: BoxFit.fitWidth, // Memastikan gambar menyesuaikan lebar tanpa cropping
+                                ))
                           : imageUrl != null
                               ? Image.network(
                                   imageUrl!, // Ganti dengan URL gambar dari network

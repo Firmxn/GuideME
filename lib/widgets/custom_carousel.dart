@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:guideme/core/constants/constants.dart';
 import 'dart:io';
@@ -122,7 +123,7 @@ class Dynamic_CarouselWidgetState extends State<DynamicCarouselWidget> {
                     width: screenWidth - 2 * horizontalPadding, // Ukuran carousel disesuaikan dengan padding
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.0), // Border radius
-                      child: isLocalImage
+                      child: (!kIsWeb && isLocalImage)
                           ? Image.file(
                               File(imageAsset), // Menampilkan gambar lokal
                               fit: BoxFit.cover,

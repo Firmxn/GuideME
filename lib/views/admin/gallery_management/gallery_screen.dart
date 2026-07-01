@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:io'; // Menambahkan import untuk File
+import 'dart:io';
+import 'dart:typed_data'; // Menambahkan import untuk File
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:guideme/controllers/gallery_controller.dart';
 import 'package:guideme/core/constants/colors.dart';
 import 'package:guideme/core/constants/text_styles.dart';
@@ -136,7 +138,7 @@ class GalleryManagementScreenContent extends StatelessWidget {
                                       children: [
                                         ClipRRect(
                                           borderRadius: BorderRadius.all(Radius.circular(5)),
-                                          child: newGalleryModel.imageUrl.startsWith('/')
+                                          child: (!kIsWeb && newGalleryModel.imageUrl.startsWith('/'))
                                               ? Image.file(
                                                   File(newGalleryModel.imageUrl),
                                                   fit: BoxFit.cover,

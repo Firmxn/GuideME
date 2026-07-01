@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:guideme/core/constants/constants.dart';
@@ -205,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               top: Radius.circular(5),
                                               bottom: Radius.circular(5),
                                             ),
-                                            child: newDestinationModel.imageUrl.startsWith('/')
+                                            child: (!kIsWeb && newDestinationModel.imageUrl.startsWith('/'))
                                                 ? Image.file(
                                                     File(newDestinationModel.imageUrl),
                                                     fit: BoxFit.cover,
@@ -418,7 +419,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               top: Radius.circular(5),
                                               bottom: Radius.circular(5),
                                             ),
-                                            child: newEventModel.imageUrl.startsWith('/')
+                                            child: (!kIsWeb && newEventModel.imageUrl.startsWith('/'))
                                                 ? Image.file(
                                                     File(newEventModel.imageUrl),
                                                     fit: BoxFit.cover,

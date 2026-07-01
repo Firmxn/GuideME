@@ -121,7 +121,7 @@ import 'package:guideme/views/user/gallery_screen.dart';
 import 'package:guideme/views/user/profile/profile_screen.dart';
 import 'package:guideme/views/user/search_screen.dart';
 import 'package:guideme/views/user/ticket/ticket_screen.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 class AdminBottomNavBar extends StatelessWidget {
   final int selectedIndex;
@@ -192,7 +192,7 @@ class AdminBottomNavBar extends StatelessWidget {
   }
 
   // Fungsi untuk membuat BottomNavigationBarItem dengan border di atas dan label di atas ikon
-  BottomNavigationBarItem _buildNavItem(PhosphorIconData icon, int index, String label) {
+  BottomNavigationBarItem _buildNavItem(IconData icon, int index, String label) {
     return BottomNavigationBarItem(
       label: '',
       icon: Column(
@@ -305,7 +305,7 @@ class UserBottomNavBar extends StatelessWidget {
   }
 
   // Fungsi untuk membuat BottomNavigationBarItem dengan border di atas dan label di atas ikon
-  BottomNavigationBarItem _buildNavItem(PhosphorIconData icon, int index, String label) {
+  BottomNavigationBarItem _buildNavItem(IconData icon, int index, String label) {
     return BottomNavigationBarItem(
       label: '',
       icon: Column(

@@ -1,5 +1,6 @@
 // import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class _createDestinationScreenState extends State<CreateDestinationScreen> {
   String? selectedStatus;
 
   File? _imageFile;
+  Uint8List? _imageBytes;
 
   // mereset map setiap membuat halaman
   @override
@@ -73,15 +75,17 @@ class _createDestinationScreenState extends State<CreateDestinationScreen> {
     final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      final bytes = await pickedFile.readAsBytes();
       setState(() {
-        _imageFile = File(pickedFile.path); // Menyimpan file gambar yang dipilih
+        try { _imageFile = File(pickedFile.path); } catch(e) {}
+        _imageBytes = bytes; // Menyimpan file gambar yang dipilih
       });
     }
   }
 
   // Fungsi untuk mengunggah gambar ke Supabase
   Future uploadImage() async {
-    if (_imageFile == null) return;
+    if (_imageBytes == null) return;
 
     // Ambil teks dari field 'name' dan buat format nama file
     final name = _nameController.text;
@@ -92,7 +96,7 @@ class _createDestinationScreenState extends State<CreateDestinationScreen> {
 
     try {
       // Mengunggah gambar ke Supabase
-      final uploadPath = await Supabase.instance.client.storage.from('images').upload(path, _imageFile!);
+      final uploadPath = await Supabase.instance.client.storage.from('images').uploadBinary(path, _imageBytes!);
 
       if (uploadPath.isNotEmpty) {
         // Mendapatkan URL publik untuk gambar yang diunggah
@@ -422,6 +426,7 @@ class _createDestinationScreenState extends State<CreateDestinationScreen> {
 
                 NewUploadImageWithPreview(
                   imageFile: _imageFile,
+                  imageBytes: _imageBytes,
                   imageUrl: _imageUrl, // Gantilah dengan URL gambar yang dipilih
                   onPressed: _pickImage, // Fungsi untuk memilih gambar
                 ),

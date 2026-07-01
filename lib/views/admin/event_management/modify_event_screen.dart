@@ -1,5 +1,6 @@
 // import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class _ModifyEventScreenState extends State<ModifyEventScreen> {
   String? selectedStatus;
   String? imageUrl;
   File? _imageFile;
+  Uint8List? _imageBytes;
   bool _isMapExpanded = true;
   double? latitude;
   double? longitude;
@@ -117,11 +119,13 @@ class _ModifyEventScreenState extends State<ModifyEventScreen> {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        try { _imageFile = File(pickedFile.path); } catch(e) {}
+        _imageBytes = bytes;
           imageUrl = null; // Reset URL jika file baru dipilih
         });
-      }
+    }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to pick image: $e')),
@@ -130,13 +134,13 @@ class _ModifyEventScreenState extends State<ModifyEventScreen> {
   }
 
   Future<String?> _uploadImage(String name, String category) async {
-    if (_imageFile == null) return imageUrl;
+    if (_imageBytes == null) return imageUrl;
 
     final sanitizedFileName = '${name}_${category}_${DateTime.now().millisecondsSinceEpoch}'.replaceAll(' ', '_');
     final path = 'uploads/$sanitizedFileName';
 
     try {
-      final uploadPath = await Supabase.instance.client.storage.from('images').upload(path, _imageFile!);
+      final uploadPath = await Supabase.instance.client.storage.from('images').uploadBinary(path, _imageBytes!);
 
       if (uploadPath.isNotEmpty) {
         final publicUrl = Supabase.instance.client.storage.from('images').getPublicUrl(path);
@@ -458,6 +462,7 @@ class _ModifyEventScreenState extends State<ModifyEventScreen> {
                 NewUploadImageWithPreview(
                   imageUrl: imageUrl, // Gantilah dengan URL gambar yang dipilih
                   imageFile: _imageFile,
+                  imageBytes: _imageBytes,
                   onPressed: _pickImage, // Fungsi untuk memilih gambar
                 ),
 

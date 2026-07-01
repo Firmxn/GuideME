@@ -18,12 +18,9 @@ void main() async {
   );
   // supabase
   await Supabase.initialize(
-    url: 'https://ovknhddyefflxxuiogcw.supabase.co',
-    // url: 'https://errgdpvuqptgmkobutnt.supabase.co',
+    url: 'https://fxvyrivprwjrmebgywmc.supabase.co',
     anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92a25oZGR5ZWZmbHh4dWlvZ2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzNjE1ODcsImV4cCI6MjA1MDkzNzU4N30.7Jjppf5wqYdrpnHYI_NYuWC6kqzF1Aktm8EUKg3zQrg',
-    // anonKey:
-    //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVycmdkcHZ1cXB0Z21rb2J1dG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMzOTg2MTAsImV4cCI6MjA0ODk3NDYxMH0.bOPICi0eFnqBFiNyufFgrVtXvradIylCNMenDFE0XHk',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4dnlyaXZwcndqcm1lYmd5d21jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4ODM2MzUsImV4cCI6MjA5ODQ1OTYzNX0.WIF3fS7iYGDwLQhuaGMznkH1zgDepsxxqVQ9PiNmqtY',
   );
   // checkClosingTimes();
 

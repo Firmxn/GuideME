@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:guideme/controllers/gallery_controller.dart';
 import 'package:guideme/controllers/category_controller.dart';
@@ -36,6 +37,7 @@ class _ModifyGalleryManagementScreenState extends State<ModifyGalleryManagementS
   String? selectedName;
   String? imageUrl;
   File? imageFile;
+  Uint8List? _imageBytes;
   String? description;
   bool? existingMainImage;
 
@@ -68,11 +70,13 @@ class _ModifyGalleryManagementScreenState extends State<ModifyGalleryManagementS
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        setState(() {
-          imageFile = File(pickedFile.path);
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        try { imageFile = File(pickedFile.path); } catch(e) {}
+        _imageBytes = bytes;
           imageUrl = null; // Reset URL jika file baru dipilih
         });
-      }
+    }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to pick image: $e')),
@@ -81,13 +85,13 @@ class _ModifyGalleryManagementScreenState extends State<ModifyGalleryManagementS
   }
 
   Future<String?> _uploadImage(String name, String category) async {
-    if (imageFile == null) return imageUrl;
+    if (_imageBytes == null) return imageUrl;
 
     final sanitizedFileName = '${name}_gallery_${category}_${DateTime.now().millisecondsSinceEpoch}'.replaceAll(' ', '_');
     final path = 'uploads/$sanitizedFileName';
 
     try {
-      final uploadPath = await Supabase.instance.client.storage.from('images').upload(path, imageFile!);
+      final uploadPath = await Supabase.instance.client.storage.from('images').uploadBinary(path, _imageBytes!);
 
       if (uploadPath.isNotEmpty) {
         final publicUrl = Supabase.instance.client.storage.from('images').getPublicUrl(path);
@@ -251,6 +255,7 @@ class _ModifyGalleryManagementScreenState extends State<ModifyGalleryManagementS
 
                 NewUploadImageWithPreview(
                   imageFile: imageFile,
+                  imageBytes: _imageBytes,
                   imageUrl: imageUrl ?? '',
                   onPressed: _pickImage,
                 ),
@@ -481,19 +486,19 @@ class _ModifyGalleryManagementScreenState extends State<ModifyGalleryManagementS
 
 //   if (pickedFile != null) {
 //     setState(() {
-//       imageFile = File(pickedFile.path);
+//       try { imageFile = File(pickedFile.path); } catch(e) {}
 //     });
 //   }
 // }
 
 // Unggah gambar ke Supabase
 // Future<void> _uploadImage() async {
-//   if (imageFile == null) return;
+//   if (_imageBytes == null) return;
 
 //   final fileName = DateTime.now().millisecondsSinceEpoch.toString();
 //   final path = 'uploads/$fileName';
 
-//   final response = await Supabase.instance.client.storage.from('images').upload(path, imageFile!);
+//   final response = await Supabase.instance.client.storage.from('images').uploadBinary(path, _imageBytes!);
 
 //   if (response.error == null) {
 //     final imageUrlResponse = await Supabase.instance.client.storage.from('images').getPublicUrl(path);
